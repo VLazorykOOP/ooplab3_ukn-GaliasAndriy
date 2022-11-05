@@ -1,16 +1,16 @@
 #include <iostream>
 #include <stdio.h>
 #include <cstdlib>
-#define N 25
+#define SIZE 20
 
 using namespace std;
 
 class Crosses {
-private:     
-    char arr[3][3] = {' ',' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+private:
+    char arr[3][3] = { ' ',' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
     bool player;
-    char* player1 = new char(N);
-    char* player2 = new char(N);
+    char* player1 = new char(SIZE);
+    char* player2 = new char(SIZE);
     bool status;
 
 public:
@@ -83,9 +83,9 @@ public:
         bool step = false;
         if (arr[0][0] == arr[0][1] && arr[0][1] == arr[0][2] && (arr[0][0] == 'X' || arr[0][0] == 'O')) {
             status = true;
-                if (arr[0][0] == 'X') {
-                    step = true;
-                }
+            if (arr[0][0] == 'X') {
+                step = true;
+            }
         }
         else if (arr[1][0] == arr[1][1] && arr[1][1] == arr[1][2] && (arr[1][0] == 'X' || arr[1][0] == 'O')) {
             status = true;
@@ -156,39 +156,45 @@ public:
         }
         return false;
     }
-
-    //Setter
-    void setPersonsAttr (char *name1, char *name2){
-        *player1 = *name1;
-        *player2 = *name2;
-    }
-
-    //Getter
-    char getPersonsAttr (){
-        return *player1, *player2;
-    }
 };
 
-int main() {
+int showTask(int answerTask) 
+{
     Crosses cross;
 
-    cross.startGame();
-    while (true) {
-        system("cls");
-        cross.showGrid();
-        cross.showGame();
-        if (cross.checkStatus())
-            break;
-        cross.chooseCell();
-    }
-    char* name1 = new char(N);
-    char* name2 = new char(N);
-    cross.setPersonsAttr(name1, name2);
-    cross.getPersonsAttr();
-    delete [] name1;
-    delete [] name2;
+    switch (answerTask){
+    case 1:
+        cross.startGame();
+        while (true) {
+            system("cls");
+            cross.showGrid();
+            cross.showGame();
+            if (cross.checkStatus())
+                break;
+            cross.chooseCell();
+        }
+        break;
 
-    return 0;
+    default:
+        cout << "Try again!";
+        break;
+    }
+
+    return answerTask;
 }
 
-//There is some text!!!
+int main() {
+    int answer;
+    cout << "Choose a task! Enter number from 1 to 3" << endl;
+    cout << "    Main Menu  \n";
+    cout << "    1.  Task 1  \n";
+    cout << "    2.  Task 2  \n";
+    cout << "    3.  Task 3  \n";
+
+    do {
+        cout << "\n    Enter: "; cin >> answer;
+        showTask(answer);
+    } while (answer <= 0 || answer > 3);
+   
+    return 0;
+}
