@@ -168,21 +168,21 @@ public:
 };
 
 class Vector {
-private: 
-    double *arr; // x y z
-    int size;   
+private:
+    double* arr; // x y z
+    int size = 3;
     int status;
-    int const param = 10;
-    int count;
+    int const param;
+    static int count;
 public:
-    Vector() : status(OK), size(3) {
+    Vector() : status(OK), param(0){
         arr = new double[size];
         for (int i = 0; i < size; i++) {
             arr[i] = 0;
         }
         count++;
     }
-    Vector(double value) : size(3) {
+    Vector(double value) : param(0) {
         arr = new double[size];
         for (int i = 0; i < size; i++) {
             arr[i] = value;
@@ -194,6 +194,13 @@ public:
         count--;
         cout << "\n Current status of vector: " << status << endl;
         cout << " Vector delete" << endl;
+    }
+    int getState() {
+        return status;
+    }
+    static int getCount() {
+        if (count <= 0) cout << " There is no objects created ";
+        return count;
     }
     Vector(double* next);
     Vector(const Vector&);
@@ -207,9 +214,10 @@ public:
 };
 
 /*------------------------------------------------------*/
-
-Vector::Vector(const Vector& s) {
+int Vector::count = 0;
+Vector::Vector(const Vector& s) : param(0), status(OK) {
     if (this == &s) return;
+    arr = new double[s.size];
     for (int i = 0; i < 3; i++) {
         arr[i] = s.arr[i];
     }
@@ -217,22 +225,21 @@ Vector::Vector(const Vector& s) {
     count++;
 }
 
-Vector::Vector(double* next) {
+Vector::Vector(double* next) : param(0) {
+    arr = new double[size];
     if (next == nullptr) {
         status = BAD_INIT;
-        for (int i = 0; i < 3; i++)
-            arr[i] = 0;
+        arr[0] = 0; arr[1] = 0; arr[2] = 0; 
     }
     else {
-        for (int i = 0; i < 3; i++)
-            next[i] = arr[i];
+        arr[0] = next[0]; arr[1] = next[1]; arr[2] = next[2];
         status = OK;
     }
     count++;
 }
 
 Vector Vector::add(Vector& a) {
-    Vector tmp;
+    Vector tmp; 
     for (int i = 0; i < 3; i++) {
         tmp.arr[i] = arr[i] + a.arr[i];
     }
@@ -262,18 +269,18 @@ Vector Vector::divideShort(short num) {
 
 void Vector::assignElem(int const param) {
     srand(time(nullptr));
-    int rndNum = rand() % 2;
+    int rndNum = rand() % 3;
     arr[rndNum] = param;
 }
 
 void Vector::getElem() {
     srand(time(nullptr));
-    int rndNum = rand() % 2;
+    int rndNum = rand() % 3;
     cout << "Receive random element of array: " << arr[rndNum];
 }
 
 void Vector::input() {
-    cout << " Input element of vector";
+    cout << "\n Input element of vector(x, y, z): ";
     for (int i = 0; i < 3; i++) {
         cin >> arr[i];
     }
@@ -288,17 +295,20 @@ void Vector::output() {
 
 /*------------------------------------------------------*/
 
-int showTask(int answerTask) 
+int showTask(int answerTask)
 {
     /*Create objects*/
     Crosses cross;
     Vector emptyVector;
+    Vector arrInput;
     Vector initArrayOneParam(10.0);
-    double *v = nullptr, next[] = { 2, 0, 7.5 };
-    //Vector pointerArr(next);
-   // if (pointerArr.getState() != OK) cout << " ObjP3 x= 0 y= 0 \n"; //Here, I need to figure it out 
+    Vector objCopyInitArr(initArrayOneParam);
+    double* v = nullptr, next[] = {2.5, 0, 10};
+    Vector pointerArr(next);
+    Vector anotherPointerArr(next);
+    Vector getCount();
 
-    switch (answerTask){
+    switch (answerTask) {
     case 1:
         cross.startGame();
         while (true) {
@@ -313,8 +323,19 @@ int showTask(int answerTask)
 
     case 2:
         cout << "Testing class Vector{}..." << endl;
+        emptyVector.assignElem(3);
+        emptyVector.getElem();
         emptyVector.output();
         initArrayOneParam.output();
+        if (pointerArr.getState() != OK) cout << " Object pointer 1 = [0]: 0, [1]: 0, [2]: 0 \n"; //Here, I need to figure it out 
+        pointerArr.output();
+        if (anotherPointerArr.getState() != OK) cout << " Object pointer 1 = [0]: 0, [1]: 0, [2]: 0 \n";
+        cout << "\n Quantity of created objects: " << Vector::getCount() << endl;
+        cout << " Input data in objInput(x, y, z): ";
+        arrInput.input();
+        arrInput.divideShort(5);
+        arrInput.output();
+        
         break;
 
     default:
@@ -337,6 +358,6 @@ int main() {
         cout << "\n    Enter: "; cin >> answer;
         showTask(answer);
     } while (answer <= 0 || answer > 3);
-   
+
     return 0;
 }
