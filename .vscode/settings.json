@@ -30,6 +30,7 @@
   ],
   "files.associations": {
     "clocale": "cpp",
-    "cstdlib": "cpp"
+    "cstdlib": "cpp",
+    "iostream": "cpp"
   }
 }

@@ -175,11 +175,9 @@ private:
     int const param;
     static int count;
 public:
-    Vector() : status(OK), param(0){
+    Vector() : status(OK), param(0) {
         arr = new double[size];
-        for (int i = 0; i < size; i++) {
-            arr[i] = 0;
-        }
+        fill(arr, arr + size, 0);
         count++;
     }
     Vector(double value) : param(0) {
@@ -190,6 +188,7 @@ public:
         status = OK;
         count++;
     }
+    Vector(double* next);
     ~Vector() {
         count--;
         cout << "\n Current status of vector: " << status << endl;
@@ -202,7 +201,6 @@ public:
         if (count <= 0) cout << " There is no objects created ";
         return count;
     }
-    Vector(double* next);
     Vector(const Vector&);
     Vector add(Vector& d);
     Vector minus(Vector& d);
@@ -229,8 +227,8 @@ Vector::Vector(double* next) : param(0) {
     arr = new double[size];
     if (next == nullptr) {
         status = BAD_INIT;
-        arr[0] = 0; arr[1] = 0; arr[2] = 0; 
-    }
+        arr[0] = 0; arr[1] = 0; arr[2] = 0;
+    } 
     else {
         arr[0] = next[0]; arr[1] = next[1]; arr[2] = next[2];
         status = OK;
@@ -238,10 +236,10 @@ Vector::Vector(double* next) : param(0) {
     count++;
 }
 
-Vector Vector::add(Vector& a) {
-    Vector tmp; 
+Vector Vector::add(Vector& s) {
+    Vector tmp;
     for (int i = 0; i < 3; i++) {
-        tmp.arr[i] = arr[i] + a.arr[i];
+        tmp.arr[i] = arr[i] + s.arr[i];
     }
     return tmp;
 }
@@ -276,7 +274,7 @@ void Vector::assignElem(int const param) {
 void Vector::getElem() {
     srand(time(nullptr));
     int rndNum = rand() % 3;
-    cout << "Receive random element of array: " << arr[rndNum];
+    cout << " Receive random element of array: " << arr[rndNum] << "\n";
 }
 
 void Vector::input() {
@@ -293,56 +291,197 @@ void Vector::output() {
     }
 }
 
+class TwoDimensionalArray {
+private:
+    long** arr;
+    int row = 0;
+    int col = 0;
+    int state;
+public:
+    TwoDimensionalArray() : row(5), col(5), state(OK) {
+        arr = new long* [row];
+        for (int i = 0; i < col; i++)
+            arr[i] = new long[col];
+
+        for (int i = 0; i < row; i++)
+            for (int j = 0; j < col; j++)
+                arr[i][j] = 0;
+    }
+    TwoDimensionalArray(int n);
+    TwoDimensionalArray(int n, int m, double value);
+    TwoDimensionalArray(const TwoDimensionalArray& copy);
+    TwoDimensionalArray& operator = (const TwoDimensionalArray& assign);
+    ~TwoDimensionalArray() {
+        cout << "\n Delete Two-dimensional array" << endl;
+        if (arr) {
+            delete[] arr;
+        }
+    }
+
+    void assignElem(double const element);
+    void receiveElem(int n, int m);
+    void output();
+    void add(const double addNum);
+
+    /*Vector add(Vector& d);
+    Vector minus(Vector& d);
+    Vector divideShort(short num);
+    void assignElem(int const param);
+    void getElem();
+    void input();
+    void output();*/
+};
+
+TwoDimensionalArray::TwoDimensionalArray(int n) : state(OK) {
+    n = row;
+    arr = new long* [n];
+    for (int i = 0; i < n; i++)
+        arr[i] = new long[n];
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            arr[i][j] = 0;
+}
+
+TwoDimensionalArray::TwoDimensionalArray(int n, int m, double value) : state(OK) {
+    n = row; m = row;
+    arr = new long* [n];
+    for (int i = 0; i < n; i++)
+        arr[i] = new long[m];
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            arr[i][j] = value;
+}
+
+TwoDimensionalArray::TwoDimensionalArray(const TwoDimensionalArray& copy) : state(OK) {
+    row = copy.row;
+    col = copy.row;
+    arr = new long* [row];
+    for (int i = 0; i < col; i++)
+        arr[i] = new long[col];
+
+    for (int i = 0; i < row; i++) 
+        for (int j = 0; j < col; j++) 
+            arr[i][j] = copy.arr[i][j];
+}
+
+TwoDimensionalArray& TwoDimensionalArray::operator=(const TwoDimensionalArray& assign) {
+    if (row != assign.row || col != assign.col) {
+        for (int i = 0; i < row; i++) {
+            delete[] arr[i];
+        }
+        delete[] arr;
+
+        row = assign.row;
+        col - assign.col;
+        arr = new long* [row];
+        for (int i = 0; i < row; i++)
+            arr[i] = new long[col];
+    }
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            arr[i][j] = assign.arr[i][j];
+        }
+    }
+    return *this;
+}
+
+void TwoDimensionalArray::output() {
+    cout << "\n        Matrix" << endl;
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            cout << " | " << arr[i][j];
+        }
+        cout << " |\n";
+    }
+}
+
+void TwoDimensionalArray::assignElem(double const elem) {
+    int rndRow = rand() % row;
+    int rndCol = rand() % col;
+    arr[rndRow][rndCol] = elem;
+}
+
+void TwoDimensionalArray::receiveElem(int n, int m) {
+    cout << "\n Received element from matrix: a[" << n << "][" << m << "] = " << arr[n][m];
+}
+
+void TwoDimensionalArray::add(const double addNum) {
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            arr[i][j] += addNum;
+        }
+    }
+}
+
 /*------------------------------------------------------*/
 
-int showTask(int answerTask)
-{
-    /*Create objects*/
-    Crosses cross;
+void showFirstTaskTicTacToe() {
+    Crosses ticTacToe;
+    ticTacToe.startGame();
+    while (true) {
+        system("cls");
+        ticTacToe.showGrid();
+        ticTacToe.showGame();
+        if (ticTacToe.checkStatus())
+            break;
+        ticTacToe.chooseCell();
+    }
+}
+
+void showSecondTaskVector() {
     Vector emptyVector;
     Vector arrInput;
-    Vector initArrayOneParam(10.0);
+    arrInput.output();
+    Vector initArrayOneParam(7.5);
     Vector objCopyInitArr(initArrayOneParam);
-    double* v = nullptr, next[] = {2.5, 0, 10};
+    double* v = nullptr, next[] = { 2.5, 0, 10 };
     Vector pointerArr(next);
     Vector anotherPointerArr(next);
     Vector getCount();
 
+    cout << "\n Testing class Vector{}..." << endl;
+    emptyVector.assignElem(3);
+    emptyVector.getElem();
+    emptyVector.output();
+    initArrayOneParam.output();
+    if (pointerArr.getState() != OK) cout << " Object pointer 1 = [0]: 0, [1]: 0, [2]: 0 \n"; //Here, I need to figure it out 
+    pointerArr.output();
+    if (anotherPointerArr.getState() != OK) cout << " Object pointer 1 = [0]: 0, [1]: 0, [2]: 0 \n";
+    cout << "\n\n Quantity of created objects: " << Vector::getCount() << endl;
+
+    arrInput.input();
+    //arrInput = arrInput.add(initArrayOneParam);
+    arrInput.output();
+}
+
+void showTwoDimensionalArray() {
+    TwoDimensionalArray matrix;
+    TwoDimensionalArray matrixSingleValue(12.5);
+    cout << "\n Empty matrix: " << endl;
+    matrix.assignElem(5.5);
+    matrix.receiveElem(3, 3);
+    matrix.output();
+    cout << "\n The matrix which filled with single value: " << endl;
+    matrixSingleValue.output();
+}
+
+int showTask(int answerTask)
+{
     switch (answerTask) {
     case 1:
-        cross.startGame();
-        while (true) {
-            system("cls");
-            cross.showGrid();
-            cross.showGame();
-            if (cross.checkStatus())
-                break;
-            cross.chooseCell();
-        }
+        showFirstTaskTicTacToe();
         break;
-
     case 2:
-        cout << "Testing class Vector{}..." << endl;
-        emptyVector.assignElem(3);
-        emptyVector.getElem();
-        emptyVector.output();
-        initArrayOneParam.output();
-        if (pointerArr.getState() != OK) cout << " Object pointer 1 = [0]: 0, [1]: 0, [2]: 0 \n"; //Here, I need to figure it out 
-        pointerArr.output();
-        if (anotherPointerArr.getState() != OK) cout << " Object pointer 1 = [0]: 0, [1]: 0, [2]: 0 \n";
-        cout << "\n Quantity of created objects: " << Vector::getCount() << endl;
-        cout << " Input data in objInput(x, y, z): ";
-        arrInput.input();
-        arrInput.divideShort(5);
-        arrInput.output();
-        
+        showSecondTaskVector();
         break;
-
+    case 3:
+        showTwoDimensionalArray();
+        break;
     default:
         cout << "Try again!";
         break;
     }
-
     return answerTask;
 }
 
