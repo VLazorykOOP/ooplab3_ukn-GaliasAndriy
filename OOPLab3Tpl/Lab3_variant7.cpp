@@ -403,43 +403,41 @@ public:
             delete[] arr;
         }
     }
-
-    void assignElem(double const element);
+    void assignElem(int n, int m, double const element);
     void receiveElem(int n, int m);
     void output();
-    void add(const double addNum);
-
-    /*Vector add(Vector& d);
-    Vector minus(Vector& d);
-    Vector divideShort(short num);
-    void assignElem(int const param);
-    void getElem();
     void input();
-    void output();*/
+    TwoDimensionalArray add(const TwoDimensionalArray& add);
+    TwoDimensionalArray minus(const TwoDimensionalArray& minus);
+    TwoDimensionalArray muptiply(const TwoDimensionalArray&);
+    TwoDimensionalArray divideOnScalar(const long scalar);
 };
 
-TwoDimensionalArray::TwoDimensionalArray(int n) : state(OK) {
-    n = row;
+TwoDimensionalArray::TwoDimensionalArray(int n) : row(n), col(n), state(OK) {
     arr = new long* [n];
     for (int i = 0; i < n; i++)
         arr[i] = new long[n];
 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            arr[i][j] = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            arr[i][j] = 1;
+        }
+    }
 }
 
-TwoDimensionalArray::TwoDimensionalArray(int n, int m, double value) : state(OK) {
-    n = row; m = row;
+TwoDimensionalArray::TwoDimensionalArray(int n, int m, double value) : row(n), col(m), state(OK) {
     arr = new long* [n];
     for (int i = 0; i < n; i++)
         arr[i] = new long[m];
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
             arr[i][j] = value;
+        }
+    }
 }
 
 TwoDimensionalArray::TwoDimensionalArray(const TwoDimensionalArray& copy) : state(OK) {
+    if (this == &copy) return;
     row = copy.row;
     col = copy.row;
     arr = new long* [row];
@@ -482,22 +480,94 @@ void TwoDimensionalArray::output() {
     }
 }
 
-void TwoDimensionalArray::assignElem(double const elem) {
-    int rndRow = rand() % row;
-    int rndCol = rand() % col;
-    arr[rndRow][rndCol] = elem;
+void TwoDimensionalArray::input() {
+    cout << "\n";
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            cout << " Enter value arr[" << i << "][" << j << "]: "; 
+            cin >> arr[i][j];
+        }
+    }
+}
+
+void TwoDimensionalArray::assignElem(int n, int m, double const elem) {
+    arr[n][m] = elem;
 }
 
 void TwoDimensionalArray::receiveElem(int n, int m) {
     cout << "\n Received element from matrix: a[" << n << "][" << m << "] = " << arr[n][m];
 }
 
-void TwoDimensionalArray::add(const double addNum) {
-    for (int i = 0; i < row; i++) {
-        for (int j = 0; j < col; j++) {
-            arr[i][j] += addNum;
+TwoDimensionalArray TwoDimensionalArray::add(const TwoDimensionalArray& add) {
+    if (row == add.row && col == add.col){
+        TwoDimensionalArray temp(row, col, 0);
+
+        for (int i = 0; i < temp.row; i++) {
+            for (int j = 0; j < temp.col; j++) {
+                temp.arr[i][j] = arr[i][j] + add.arr[i][j];
+            }
         }
+        return temp;
+    } 
+    else {
+        cout << "\n You can't add a matrix with different sizes!!!\n Return an empty matrix" << endl;
+        TwoDimensionalArray emptyMatrix;
+        return emptyMatrix;
     }
+}
+
+TwoDimensionalArray TwoDimensionalArray::minus(const TwoDimensionalArray& minus) {
+    if (row == minus.row && col == minus.col) {
+        TwoDimensionalArray temp(row, col, 0);
+
+        for (int i = 0; i < temp.row; i++) {
+            for (int j = 0; j < temp.col; j++) {
+                temp.arr[i][j] = arr[i][j] - minus.arr[i][j];
+            }
+        }
+        return temp;
+    }
+    else {
+        cout << "\n You can't substract a matrix with different sizes!!!\n Return an empty matrix" << endl;
+        TwoDimensionalArray emptyMatrix;
+        return emptyMatrix;
+    }
+}
+
+TwoDimensionalArray TwoDimensionalArray::muptiply(const TwoDimensionalArray& multiply) {
+    if (col == multiply.row)
+    {
+        TwoDimensionalArray temp(row, multiply.col, 0);
+
+        for (int i = 0; i < temp.row; i++) {
+            for (int j = 0; j < temp.col; j++) {
+                for (int ext = 0; ext < col; ext++){
+                    temp.arr[i][j] += arr[i][ext] * multiply.arr[ext][j];
+                }
+
+            }
+        }
+        return temp;
+    }
+    else {
+        cout << "\n You can't mupltiply a matrix with different row sizes!!!\n Return an empty matrix" << endl;
+        TwoDimensionalArray emptyMatrix;
+        return emptyMatrix;
+    }
+}
+
+TwoDimensionalArray TwoDimensionalArray::divideOnScalar(const long scalar) {
+    if (scalar == 0) {
+        state = BAD_INIT;
+        cout << "\n state = " << state << endl;
+        cout << "\n Bad initiallization. Can't divide on 0, because it returns empty Matrix with 0" << endl;
+    }
+    TwoDimensionalArray temp(row, col, 0);
+    for (int i = 0; i < row; i++) 
+        for (int j = 0; j < col; j++)
+            temp.arr[i][j] += arr[i][j] / scalar;
+    
+    return temp;
 }
 
 /*------------------------------------------------------*/
@@ -517,14 +587,36 @@ void showFirstTaskTicTacToe() {
 
 void showTwoDimensionalArray() {
     TwoDimensionalArray matrix;
-    TwoDimensionalArray matrixSingleValue(12.5);
+    TwoDimensionalArray testMatrix;
+    TwoDimensionalArray matrixNxN(3);
+    TwoDimensionalArray matrixRowCol(3, 5, 10);
+    TwoDimensionalArray additionForInstance(5, 5, 3.3);
+    TwoDimensionalArray arrForMultiply(5, 5, 1);
     cout << "\n Empty matrix: " << endl;
-    matrix.assignElem(5.5);
-    matrix.receiveElem(3, 3);
-    matrix.output();
-    cout << "\n The matrix which filled with single value: " << endl;
-    //matrixSingleValue.add(5);
-    matrixSingleValue.output();
+    matrix.assignElem(2, 2, 5.5);      // assign element for arr[row][col]
+    matrix.receiveElem(2, 2);          // means that we want to receive arr[row][col]
+    matrix.output(); 
+    cout << "\n The matrix with size NxN: " << endl;
+    matrixNxN.output();
+    matrixRowCol.assignElem(1, 3, -10);
+    cout << "\n The matrix with size NxM and value: " << endl;
+    matrixRowCol.output();
+    matrixRowCol.receiveElem(1, 3);
+    //testMatrix.input();
+    testMatrix.assignElem(1, 2, -3.3);
+    testMatrix = testMatrix.add(additionForInstance);
+    cout << "\n Here we add matrices:" << endl;
+    testMatrix.output();
+    testMatrix = testMatrix.minus(additionForInstance);
+    cout << "\n Here we substract matrices:" << endl;
+    testMatrix.output();
+    arrForMultiply.assignElem(1, 1, -5);
+    additionForInstance = additionForInstance.muptiply(arrForMultiply);
+    additionForInstance.output();
+    additionForInstance = additionForInstance.divideOnScalar(3);
+    additionForInstance.output();
+    //cout << " Quantity of created objects: " << TwoDimensionalArray::getCount() << endl;
+    
 }
 
 int showTask(int answerTask)
