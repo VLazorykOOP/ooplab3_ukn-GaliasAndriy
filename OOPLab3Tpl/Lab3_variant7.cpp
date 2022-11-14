@@ -5,6 +5,8 @@
 #include <math.h>
 #include <clocale>
 #define SIZE 20
+#include <chrono>
+#include <thread>
 
 enum STATE {
     OK, BAD_INIT, BAD_DIV
@@ -180,6 +182,24 @@ public:
         fill(arr, arr + size, 0);
         count++;
     }
+    Vector(const Vector& s) : status(OK), param(0) {
+        size = s.size;
+        arr = new double[size];
+        for (int i = 0; i < size; i++) arr[i] = s.arr[i];
+        count++;
+    }
+    Vector& operator=(const Vector& s) {
+        if (this == &s) return *this;
+        if (size != s.size) {
+            if (arr != nullptr) delete arr;
+            size = s.size;
+            arr = new double[size];
+        }
+        for (int i = 0; i < size; i++) {
+            arr[i] = s.arr[i];
+        }
+        return *this;
+    }
     Vector(double value) : param(0) {
         arr = new double[size];
         for (int i = 0; i < size; i++) {
@@ -201,28 +221,19 @@ public:
         if (count <= 0) cout << " There is no objects created ";
         return count;
     }
-    Vector(const Vector&);
     Vector add(Vector& d);
     Vector minus(Vector& d);
     Vector divideShort(short num);
+    Vector multiply(short num);
     void assignElem(int const param);
     void getElem();
     void input();
     void output();
+    bool CompLessAll(Vector& s);
 };
 
 /*------------------------------------------------------*/
 int Vector::count = 0;
-Vector::Vector(const Vector& s) : param(0), status(OK) {
-    if (this == &s) return;
-    arr = new double[s.size];
-    for (int i = 0; i < 3; i++) {
-        arr[i] = s.arr[i];
-    }
-    status = OK;
-    count++;
-}
-
 Vector::Vector(double* next) : param(0) {
     arr = new double[size];
     if (next == nullptr) {
@@ -265,6 +276,19 @@ Vector Vector::divideShort(short num) {
     return tmp;
 }
 
+Vector Vector::multiply(short num) {
+    Vector tmp;
+    if (num == 0) {
+        tmp.status = BAD_DIV;
+        cout << " Error multiply \n";
+        return *this;
+    }
+    for (int i = 0; i < 3; i++) {
+        tmp.arr[i] = arr[i] * num;
+    }
+    return tmp;
+}
+
 void Vector::assignElem(int const param) {
     srand(time(nullptr));
     int rndNum = rand() % 3;
@@ -289,6 +313,68 @@ void Vector::output() {
     for (int i = 0; i < 3; i++) {
         cout << " [" << i << "]: " << arr[i] << ", ";
     }
+}
+
+bool Vector::CompLessAll(Vector& s) {
+    for (int i = 0; i < size; i++) {
+        if (arr[i] < s.arr[i]) 
+            return true;
+    }
+    return false;
+}
+
+void showSecondTaskVector() {
+    using namespace std::this_thread; // sleep_for, sleep_until
+    using namespace std::chrono; // nanoseconds, system_clock, seconds
+
+    Vector emptyVector;
+    Vector arrInput;
+    arrInput.output();
+    Vector initArrayOneParam(7.5);
+    Vector objCopyInitArr(initArrayOneParam);
+    double* v = nullptr, next[] = { 2.5, 0, 10 };
+    Vector pointerArr(next);
+    Vector anotherPointerArr(next);
+    Vector getCount();
+
+    cout << "\n Testing class Vector{}..." << endl;
+    emptyVector.assignElem(3);
+    emptyVector.getElem();
+    emptyVector.output();
+    initArrayOneParam.output();
+    if (pointerArr.getState() != OK) cout << " Object pointer 1 = [0]: 0, [1]: 0, [2]: 0 \n"; //Here, I need to figure it out 
+    pointerArr.output();
+    if (anotherPointerArr.getState() != OK) cout << " Object pointer 1 = [0]: 0, [1]: 0, [2]: 0 \n";
+    cout << "\n\n Quantity of created objects: " << Vector::getCount() << endl;
+
+    arrInput.input();
+    arrInput = arrInput.add(initArrayOneParam);
+    arrInput.output();
+    cout << "\n Quantity of created objects Vector before minus operation: " << Vector::getCount() << endl;
+    sleep_for(nanoseconds(10));
+    sleep_until(system_clock::now() + seconds(1));
+    sleep_for(nanoseconds(10));
+    sleep_until(system_clock::now() + seconds(1));
+    arrInput = arrInput.minus(emptyVector);
+    cout << "\n Quantity of created objects Vector after minus operation: " << Vector::getCount() << endl;
+    arrInput.output();
+    arrInput = arrInput.divideShort(2);
+    sleep_for(nanoseconds(10));
+    sleep_until(system_clock::now() + seconds(1));
+    arrInput.output();
+    arrInput = arrInput.multiply(10);
+    sleep_for(nanoseconds(10));
+    sleep_until(system_clock::now() + seconds(1));
+    if (arrInput.getState() == STATE::BAD_DIV) cout << "BAD_DIV \n";
+    arrInput.output();
+    arrInput = arrInput.divideShort(0.0);
+    sleep_for(nanoseconds(10));
+    sleep_until(system_clock::now() + seconds(1));
+    if (arrInput.getState() == STATE::BAD_DIV) cout << "BAD_DIV \n";
+    arrInput.output();
+    cout << "\n arrInput getState " << arrInput.getState() << endl;
+    if (arrInput.CompLessAll(arrInput)) cout << "ObjCopy less than arrInput " << endl;
+    cout << "End of testing... \n";
 }
 
 class TwoDimensionalArray {
@@ -429,32 +515,6 @@ void showFirstTaskTicTacToe() {
     }
 }
 
-void showSecondTaskVector() {
-    Vector emptyVector;
-    Vector arrInput;
-    arrInput.output();
-    Vector initArrayOneParam(7.5);
-    Vector objCopyInitArr(initArrayOneParam);
-    double* v = nullptr, next[] = { 2.5, 0, 10 };
-    Vector pointerArr(next);
-    Vector anotherPointerArr(next);
-    Vector getCount();
-
-    cout << "\n Testing class Vector{}..." << endl;
-    emptyVector.assignElem(3);
-    emptyVector.getElem();
-    emptyVector.output();
-    initArrayOneParam.output();
-    if (pointerArr.getState() != OK) cout << " Object pointer 1 = [0]: 0, [1]: 0, [2]: 0 \n"; //Here, I need to figure it out 
-    pointerArr.output();
-    if (anotherPointerArr.getState() != OK) cout << " Object pointer 1 = [0]: 0, [1]: 0, [2]: 0 \n";
-    cout << "\n\n Quantity of created objects: " << Vector::getCount() << endl;
-
-    arrInput.input();
-    //arrInput = arrInput.add(initArrayOneParam);
-    arrInput.output();
-}
-
 void showTwoDimensionalArray() {
     TwoDimensionalArray matrix;
     TwoDimensionalArray matrixSingleValue(12.5);
@@ -463,6 +523,7 @@ void showTwoDimensionalArray() {
     matrix.receiveElem(3, 3);
     matrix.output();
     cout << "\n The matrix which filled with single value: " << endl;
+    //matrixSingleValue.add(5);
     matrixSingleValue.output();
 }
 
